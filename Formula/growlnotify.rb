@@ -51,29 +51,32 @@ class Growlnotify < Formula
   url 'http://growl.cachefly.net/GrowlNotify-2.0.zip'
   sha1 'efd54dec2623f57fcbbba54050206d70bc7746dd'
 
+  keg_only "#{name} is installed via system package installer."
+
   depends_on :macos => :lion
   depends_on GrowlHelperAppRequirement.new
 
-  def install
-    (prefix+'README').write <<-EOS.undent
-      #{name} is available in '.pkg' format and is installed via package
-      installer (installer -pkg). Thus `brew uninstall` will not remove it
-      completely.
+  BUNDLE_ID_PREFIX = "info.growl.growlnotify"
 
-      To uninstall, consider manually deleting the following files:
-      #{installed_files("info.growl.growlnotify").join("\n")}
+  def install
+    (prefix+'README').write <<-EOS
+      #{caveats}
       EOS
 
-    system "sudo", "installer", "-pkg", 'GrowlNotify.pkg', "-target", "/"
+    (prefix+'files.txt').write <<-EOS.undent
+      #{installed_files(BUNDLE_ID_PREFIX).join("\n      ")}
+      EOS
+
+    safe_system "sudo", "installer", "-pkg", "GrowlNotify.pkg", "-target", "/"
   end
 
   def caveats; <<-EOS.undent
-    #{name} is available in '.pkg' format and is installed via package
-    installer (installer -pkg). Thus `brew uninstall` will not remove it
-    completely.
+    #{name} is available in '.pkg' format and is installed via system
+    package installer (installer -pkg). Thus `brew uninstall` will not
+    remove it completely.
 
-    To uninstall, consider manually deleting the files listed in:
-    #{prefix}/README
+    To uninstall, consider manually deleting the files listed in
+    #{prefix}/files.txt
     EOS
   end
 
@@ -82,16 +85,13 @@ class Growlnotify < Formula
   end
 
   def installed_files(package)
-    # TODO: Simplify by using map and flatten
-    @files = []
-    Dir.glob("/var/db/receipts/#{package.to_s}.*.plist").each do |plist|
-      @prefix = "/#{`/usr/bin/defaults read #{plist} InstallPrefixPath`.chomp}"
-      @id = `/usr/bin/defaults read #{plist} PackageIdentifier`.chomp
-      `/usr/bin/lsbom -f -l -s -pf /var/db/receipts/'#{@id}'.bom`.chomp.each_line do |line|
-        @files << Pathname.new("#{@prefix}/#{line}").cleanpath
+    Dir.glob("/var/db/receipts/#{package.to_s}*.plist").map do |plist|
+      prefix = "/#{`/usr/bin/defaults read #{plist} InstallPrefixPath`.chomp}"
+      id = `/usr/bin/defaults read #{plist} PackageIdentifier`.chomp
+     `/usr/bin/lsbom -f -l -s -pf /var/db/receipts/'#{id}'.bom`.chomp.map do |line|
+        Pathname.new("#{prefix}/#{line}").cleanpath.to_s.chomp
       end
-    end
-    @files
+    end.flatten
   end
 
 end
