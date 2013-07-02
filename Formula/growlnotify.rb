@@ -26,7 +26,7 @@ class GrowlHelperAppRequirement < Requirement
   end
 
   satisfy :build_env => false do
-    @version ||= begin
+    helper_version ||= begin
       # Ask Spotlight where GrowlHelperApp is
       path = MacOS.app_with_bundle_id(GROWL_HELPER_BUNDLE_ID)
       if not path.nil? and path.exist?
@@ -34,8 +34,7 @@ class GrowlHelperAppRequirement < Requirement
         GrowlHelperAppVersion.new(`mdls -raw -name kMDItemVersion "#{path}" 2>/dev/null`.strip)
       end
     end
-
-    @min_version <= @version
+    @min_version <= helper_version unless helper_version.nil?
   end
 
   def message; <<-EOS.undent
@@ -58,6 +57,20 @@ class Growlnotify < Formula
 
   BUNDLE_ID_PREFIX = "info.growl.growlnotify"
 
+  def options
+    [['--target=<target_device>', "Install on a different volume, defaults to '/'"]]
+  end
+
+  def target_device
+    # check arguments for a different target device
+    ARGV.each do |a|
+      if a.index('--target')
+        return a.sub('--target=', '')
+      end
+    end
+    '/'
+  end
+
   def install
     (prefix+'README').write <<-EOS
       #{caveats}
@@ -67,7 +80,8 @@ class Growlnotify < Formula
       #{installed_files(BUNDLE_ID_PREFIX).join("\n      ")}
       EOS
 
-    safe_system "sudo", "installer", "-pkg", "GrowlNotify.pkg", "-target", "/"
+    pkg_file = Dir['*.pkg'].first
+    safe_system "sudo", "installer", "-pkg", pkg_file, "-target", target_device
   end
 
   def caveats; <<-EOS.undent
