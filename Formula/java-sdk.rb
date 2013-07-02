@@ -56,11 +56,12 @@ class JavaSdk < Formula
   end
 
   def installed_files(package)
-    Dir.glob("/var/db/receipts/#{package.to_s}*.plist").map do |plist|
-      prefix = "/#{`/usr/bin/defaults read #{plist} InstallPrefixPath`.chuzzle}"
-      id = `/usr/bin/defaults read #{plist} PackageIdentifier`.chuzzle
-     `/usr/bin/lsbom -f -l -s -pf /var/db/receipts/'#{id}'.bom`.chuzzle.map do |line|
-        Pathname.new("#{prefix}/#{line}").cleanpath.to_s.chuzzle
+    packages = `/usr/sbin/pkgutil --packages --volume #{target_device}`.select { |p| p =~ %r{#{BUNDLE_ID_PREFIX}} }
+    packages.map do |pkg|
+      prefix = `/usr/bin/defaults read /var/db/receipts/#{pkg.chuzzle}.plist InstallPrefixPath`.chuzzle
+      id = `/usr/bin/defaults read /var/db/receipts/#{pkg.chuzzle}.plist PackageIdentifier`.chuzzle
+     `pkgutil --files #{id}`.chuzzle.map do |file|
+        Pathname.new("#{target_device}/#{prefix}/#{file}").cleanpath.to_s.chuzzle
       end
     end.flatten
   end
