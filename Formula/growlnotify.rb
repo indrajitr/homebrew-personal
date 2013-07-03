@@ -6,19 +6,10 @@ class GrowlHelperAppRequirement < Requirement
 
   fatal true
 
-  class GrowlHelperAppVersion < Version
-    def major
-      tokens[0].to_s.to_i
-    end
-    def minor
-      tokens[1].to_s.to_i
-    end
-  end
-
-  def initialize(version="2.0", tags=[])
+  def initialize(version = "2.0", tags = [])
     # Extract the min_version if given. Default to GrowlHelperApp 2.x
     if /(\d+\.)*\d+/ === version.to_s
-      @min_version = GrowlHelperAppVersion.new(version)
+      @min_version = Version.new(version)
     else
       raise "Invalid version specification for GrowlHelperApp: '#{version}'"
     end
@@ -31,7 +22,7 @@ class GrowlHelperAppRequirement < Requirement
       path = MacOS.app_with_bundle_id(GROWL_HELPER_BUNDLE_ID)
       if not path.nil? and path.exist?
         # And detect version if found
-        GrowlHelperAppVersion.new(`mdls -raw -name kMDItemVersion "#{path}" 2>/dev/null`.strip)
+        Version.new(`mdls -raw -name kMDItemVersion "#{path}" 2>/dev/null`.strip)
       end
     end
     @min_version <= helper_version unless helper_version.nil?
@@ -53,34 +44,21 @@ class Growlnotify < Formula
   depends_on :macos => :lion
   depends_on GrowlHelperAppRequirement.new
 
-  def options
-    [['--target=<target_device>', "Install on a different volume, defaults to '/'"]]
-  end
-
-  def target_device
-    # check arguments for a different target device
-    ARGV.each do |a|
-      if a.index('--target')
-        return a.sub('--target=', '')
-      end
-    end
-    '/'
-  end
-
   def install
-    pkg_file = Dir['*.pkg'].first
-    mkdir('extracted') do
-      safe_system "/usr/bin/xar", "-xf", @buildpath/pkg_file
-      # safe_system "pax", "--insecure", "-rz", "-f", payload, "-s", "',.,#{bin},'"
-      safe_system "pax", "--insecure", "-rz", "-f", "growlnotify.pkg/Payload"
-      bin.install 'growlnotify'
-      safe_system "pax", "--insecure", "-rz", "-f", "growlnotify-1.pkg/Payload"
-      man1.install 'growlnotify.1'
-      doc.install Dir['Resources/*/{License,ReadMe}']
+    safe_system '/usr/sbin/pkgutil', '--expand', 'GrowlNotify.pkg', "#{name}_extracted"
+    chdir "#{name}_extracted"
+
+    # We have growlnotify.pkg and growlnotify-1.pkg
+    Dir['*.pkg'].each do |package|
+      safe_system "/bin/pax", "--insecure", "-rz", "-f", "#{package}/Payload"
     end
+    bin.install 'growlnotify'
+    man1.install 'growlnotify.1'
+
+    doc.install Dir['Resources/*/{License,ReadMe}']
   end
 
   test do
-    system "growlnotify", "--version"
+    system "#{bin}/growlnotify", "--version"
   end
 end
