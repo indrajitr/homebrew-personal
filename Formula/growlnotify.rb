@@ -50,12 +50,8 @@ class Growlnotify < Formula
   url 'http://growl.cachefly.net/GrowlNotify-2.0.zip'
   sha1 'efd54dec2623f57fcbbba54050206d70bc7746dd'
 
-  keg_only "#{name} is installed via system package installer."
-
   depends_on :macos => :lion
   depends_on GrowlHelperAppRequirement.new
-
-  BUNDLE_ID_PREFIX = "info.growl.growlnotify"
 
   def options
     [['--target=<target_device>', "Install on a different volume, defaults to '/'"]]
@@ -72,41 +68,19 @@ class Growlnotify < Formula
   end
 
   def install
-    (prefix+'README').write <<-EOS
-      #{caveats}
-      EOS
-
-    (prefix+'files.txt').write <<-EOS.undent
-      #{installed_files(BUNDLE_ID_PREFIX).join("\n      ")}
-      EOS
-
     pkg_file = Dir['*.pkg'].first
-    safe_system "sudo", "installer", "-pkg", pkg_file, "-target", target_device
-  end
-
-  def caveats; <<-EOS.undent
-    #{name} is available in '.pkg' format and is installed via system
-    package installer (installer -pkg). Thus `brew uninstall` will not
-    remove it completely.
-
-    To uninstall, consider manually deleting the files listed in
-    #{prefix}/files.txt
-    EOS
+    mkdir('extracted') do
+      safe_system "/usr/bin/xar", "-xf", @buildpath/pkg_file
+      # safe_system "pax", "--insecure", "-rz", "-f", payload, "-s", "',.,#{bin},'"
+      safe_system "pax", "--insecure", "-rz", "-f", "growlnotify.pkg/Payload"
+      bin.install 'growlnotify'
+      safe_system "pax", "--insecure", "-rz", "-f", "growlnotify-1.pkg/Payload"
+      man1.install 'growlnotify.1'
+      doc.install Dir['Resources/*/{License,ReadMe}']
+    end
   end
 
   test do
     system "growlnotify", "--version"
   end
-
-  def installed_files(package)
-    packages = `/usr/sbin/pkgutil --packages --volume #{target_device}`.select { |p| p =~ %r{#{BUNDLE_ID_PREFIX}} }
-    packages.map do |pkg|
-      prefix = `/usr/bin/defaults read /var/db/receipts/#{pkg.chuzzle}.plist InstallPrefixPath`.chuzzle
-      id = `/usr/bin/defaults read /var/db/receipts/#{pkg.chuzzle}.plist PackageIdentifier`.chuzzle
-     `pkgutil --files #{id}`.chuzzle.map do |file|
-        Pathname.new("#{target_device}/#{prefix}/#{file}").cleanpath.to_s.chuzzle
-      end
-    end.flatten
-  end
-
 end
