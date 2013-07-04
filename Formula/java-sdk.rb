@@ -10,13 +10,11 @@ end
 class JavaDocs < Formula
   url 'http://download.oracle.com/otn-pub/java/jdk/7u25-b15/jdk-7u25-apidocs.zip', :using => JavaDownloadStrategy
   sha1 '60b9945344cfbe0867d4c5be234d9795745ec727'
-  version '1.7.0_25'
 end
 
 class UnlimitedJcePolicy < Formula
   url 'http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip', :using => JavaDownloadStrategy
   sha1 '7d3c9ee89536b82cd21c680088b1bced16017253'
-  version '1.7.0_25'
 end
 
 class JavaSdk < Formula
@@ -140,8 +138,8 @@ class JavaSdk < Formula
     To uninstall, consider manually deleting the files listed in
     #{prefix}/files.txt
 
-    If Java SDK documentation is installed (via '--with-docs'),
-    it can be linked from inside SDK home:
+    If Java SDK documentation is installed (via '--with-docs'), it can
+    be linked from inside SDK home:
     sudo ln -s #{doc} \\
           #{if File.directory?(jdk_installed_base)
               jdk_installed_base.to_s + '/Contents/Home/docs'
@@ -151,15 +149,16 @@ class JavaSdk < Formula
 
     For more, see: http://www.oracle.com/technetwork/java/javase/javase7-install-docs-439822.html
 
-    If JCE Unlimited Strength Jurisdiction Policy Files is installed (via '--with-unlimited-jce'),
-    the strong policy files present in:
-    #{if File.directory?(jdk_installed_base)
-        jdk_installed_base.to_s + '/Contents/Home/jre/lib/security/{US_export_policy,local_policy}.jar'
-      else
-        '${JAVA_HOME}/jre/lib/security/{US_export_policy,local_policy}.jar'
-      end}
-    can be replaced with the unlimited strength policy files installed in:
-    #{prefix + 'jre/lib/security'}/{US_export_policy,local_policy}.jar
+    If JCE Unlimited Strength Jurisdiction Policy Files is installed
+    (via '--with-unlimited-jce'), the unlimited strength policy files
+    can replace the strong policy files (optionally keeping a backup)
+    inside SDK's JRE home:
+    sudo ln -sf #{prefix + 'jre/lib/security'}/{US_export,local}_policy.jar \\
+          #{if File.directory?(jdk_installed_base)
+              jdk_installed_base.to_s + '/Contents/Home/jre/lib/security/'
+            else
+              '${JAVA_HOME}/jre/lib/security/'
+            end}
 
     For more, see: #{prefix + 'jre/lib/security'}/README.txt
     EOS
