@@ -10,6 +10,11 @@ end
 class JavaDocs < Formula
   url 'http://download.oracle.com/otn-pub/java/jdk/7u25-b15/jdk-7u25-apidocs.zip', :using => JavaDownloadStrategy
   sha1 '60b9945344cfbe0867d4c5be234d9795745ec727'
+
+  devel do
+    url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-docs-b96-all-27_jun_2013.zip'
+    sha1 'fe94b95088061848ed2627485e9680a255068b65'
+  end
 end
 
 class UnlimitedJcePolicy < Formula
@@ -22,6 +27,12 @@ class JavaSdk < Formula
   url 'http://download.oracle.com/otn-pub/java/jdk/7u25-b15/jdk-7u25-macosx-x64.dmg', :using => JavaDownloadStrategy
   sha1 '302164484e6d4dde1f64a658c155facc1130a1de'
   version '1.7.0_25'
+
+  devel do
+    url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-bin-b96-macosx-x86_64-27_jun_2013.dmg'
+    sha1 'fafa2247edfc39db2a4b9d776b5c49ff84a606d7'
+    version '1.8.0-ea'
+  end
 
   keg_only 'Java SDK is installed via system package installer.'
 
@@ -51,6 +62,10 @@ class JavaSdk < Formula
     return "#{prefix}.(#{suffixes.join('|')})"
   end
 
+  def jdk_home_suffix
+    build.devel? ? 'jdk8' : 'jdk7u25'
+  end
+
   # mount dmg, do everything in the block and ensure dmg is unmounted
   def mount_dmg(mountpoint, &block)
     hdiutil_mount mountpoint, Dir['*.dmg'].first
@@ -75,7 +90,7 @@ class JavaSdk < Formula
   end
 
   def installed_files
-    packages_with_bundle_id(bundle_id_pattern(['jdk7u25', 'jre'])).map do |pkg|
+    packages_with_bundle_id(bundle_id_pattern([jdk_home_suffix, 'jre'])).map do |pkg|
       prefix = read_receipt(pkg, 'InstallPrefixPath')
       files_with_bundle_id(read_receipt(pkg, 'PackageIdentifier')).map do |file|
         Pathname.new("#{target_device}/#{prefix}/#{file}").cleanpath
@@ -84,7 +99,7 @@ class JavaSdk < Formula
   end
 
   def jdk_installed_base
-    pkg = packages_with_bundle_id(bundle_id_pattern(['jdk7u25'])).first
+    pkg = packages_with_bundle_id(bundle_id_pattern([jdk_home_suffix])).first
     prefix = read_receipt(pkg, 'InstallPrefixPath') unless pkg.nil? or pkg.empty?
     Pathname.new("#{target_device}/#{prefix}").cleanpath
   end
