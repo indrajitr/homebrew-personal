@@ -1,7 +1,9 @@
 require 'formula'
 
 class GrowlHelperAppRequirement < Requirement
+
   GROWL_HELPER_BUNDLE_ID = "com.Growl.GrowlHelperApp"
+  GROWL_HELPER_BUNDLE_PATH = Pathname.new("/Applications/Growl.app")
   attr_reader :min_version
 
   fatal true
@@ -18,11 +20,20 @@ class GrowlHelperAppRequirement < Requirement
 
   satisfy :build_env => false do
     helper_version ||= begin
-      # Ask Spotlight where GrowlHelperApp is
-      path = MacOS.app_with_bundle_id(GROWL_HELPER_BUNDLE_ID)
-      if not path.nil? and path.exist?
-        # And detect version if found
-        Version.new(`mdls -raw -name kMDItemVersion "#{path}" 2>/dev/null`.strip)
+      if File.executable? "#{GROWL_HELPER_BUNDLE_PATH}/Contents/MacOS/Growl"
+        # Try detecting version directly if it is installed in usual place
+        info = "#{GROWL_HELPER_BUNDLE_PATH}/Contents/Info.plist"
+        if File.exist? "#{info}"
+          Version.new(`/usr/bin/defaults read "#{info}" 'CFBundleVersion' 2>/dev/null`.strip)
+        end
+      else
+        # Ask Spotlight where Growl is. If the user didn't installed Growl
+        # in a non-conventional place, this is our only option.
+        # See: http://superuser.com/questions/390757
+        path = MacOS.app_with_bundle_id(GROWL_HELPER_BUNDLE_ID)
+        if not path.nil? and path.exist?
+          Version.new(`/usr/bin/mdls -raw -name kMDItemVersion "#{path}" 2>/dev/null`.strip)
+        end
       end
     end
     @min_version <= helper_version unless helper_version.nil?
