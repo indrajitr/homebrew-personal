@@ -8,8 +8,8 @@ class JavaDownloadStrategy < CurlDownloadStrategy
 end
 
 class JavaDocs < Formula
-  url 'http://download.oracle.com/otn-pub/java/jdk/7u25-b15/jdk-7u25-apidocs.zip', :using => JavaDownloadStrategy
-  sha1 '60b9945344cfbe0867d4c5be234d9795745ec727'
+  url 'http://download.oracle.com/otn-pub/java/jdk/7u40-b43/jdk-7u40-apidocs.zip', :using => JavaDownloadStrategy
+  sha1 '4a588322c9c34720abd1edaa843d72f3584b3b85'
 
   devel do
     url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-docs-b96-all-27_jun_2013.zip'
@@ -24,9 +24,9 @@ end
 
 class JavaSdk < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
-  url 'http://download.oracle.com/otn-pub/java/jdk/7u25-b15/jdk-7u25-macosx-x64.dmg', :using => JavaDownloadStrategy
-  sha1 '302164484e6d4dde1f64a658c155facc1130a1de'
-  version '1.7.0_25'
+  url 'http://download.oracle.com/otn-pub/java/jdk/7u40-b43/jdk-7u40-macosx-x64.dmg', :using => JavaDownloadStrategy
+  sha1 'e97c96e3b499cc414f85cdef84cff64988cb5c32'
+  version '1.7.0_40'
 
   devel do
     url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-bin-b96-macosx-x86_64-27_jun_2013.dmg'
@@ -54,16 +54,16 @@ class JavaSdk < Formula
   end
 
   # java is installed under multiple bundle ids for example,
-  # - "/Library/Java/JavaVirtualMachines/jdk1.7.0_25/Contents/Home" go under "com.oracle.jdk7u25"
+  # - "/Library/Java/JavaVirtualMachines/jdk1.7.0_40/Contents/Home" go under "com.oracle.jdk7u40"
   # - "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin" go under "com.oracle.jre"
   # - "/Library/PreferencePanes/JavaControlPanel.prefPane" go under "com.oracle.jre"
   def bundle_id_pattern(suffixes = [], prefix = 'com.oracle')
-    # Pattern would be like: "com.oracle.(jdk7u25|jre)"
+    # Pattern would be like: "com.oracle.(jdk7u40|jre)"
     return "#{prefix}.(#{suffixes.join('|')})"
   end
 
   def jdk_home_suffix
-    build.devel? ? 'jdk8' : 'jdk7u25'
+    build.devel? ? 'jdk8' : 'jdk7u40'
   end
 
   # mount dmg, do everything in the block and ensure dmg is unmounted
