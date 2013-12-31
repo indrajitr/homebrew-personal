@@ -139,6 +139,29 @@ class JavaSdk < Formula
     UnlimitedJcePolicy.new.brew { (prefix + 'jre/lib/security').install Dir['*'] } if build.with? 'unlimited-jce'
   end
 
+  def post_install
+    if build.with? 'docs'
+      # Java SDK documentation linked from inside SDK home
+      # See: http://www.oracle.com/technetwork/java/javase/javase7-install-docs-439822.html
+      dest = Pathname.new("#{jdk_installed_base}/Contents/Home/docs")
+      unless dest.symlink? or dest.directory?
+        safe_system 'sudo', 'ln', '-s', doc, dest
+      else
+        puts "Skipping; already exists: #{dest}" if ARGV.verbose?
+      end
+    end
+
+    if build.with? 'unlimited-jce'
+      # JCE Unlimited Strength Jurisdiction Policy files replace the strong
+      # policy files inside SDK's JRE home
+      # See: #{prefix + 'jre/lib/security'}/README.txt
+      dest = Pathname.new("#{jdk_installed_base}/Contents/Home/jre/lib/security/")
+      ['US_export_policy.jar', 'local_policy.jar'].each do |jar|
+        safe_system 'sudo', 'ln', '-sf', prefix + 'jre/lib/security/' + jar, dest
+      end
+    end
+  end
+
   def caveats; <<-EOS.undent
     We agreed to the Oracle Binary Code License Agreement for you by downloading the SDK.
     If this is unacceptable you should uninstall.
@@ -152,30 +175,6 @@ class JavaSdk < Formula
 
     To uninstall, consider manually deleting the files listed in
     #{prefix}/files.txt
-
-    If Java SDK documentation is installed (via '--with-docs'), it can
-    be linked from inside SDK home:
-    sudo ln -s #{doc} \\
-          #{if File.directory?(jdk_installed_base)
-              jdk_installed_base.to_s + '/Contents/Home/docs'
-            else
-              '${JAVA_HOME}/docs'
-            end}
-
-    For more, see: http://www.oracle.com/technetwork/java/javase/javase7-install-docs-439822.html
-
-    If JCE Unlimited Strength Jurisdiction Policy Files is installed
-    (via '--with-unlimited-jce'), the unlimited strength policy files
-    can replace the strong policy files (optionally keeping a backup)
-    inside SDK's JRE home:
-    sudo ln -sf #{prefix + 'jre/lib/security'}/{US_export,local}_policy.jar \\
-          #{if File.directory?(jdk_installed_base)
-              jdk_installed_base.to_s + '/Contents/Home/jre/lib/security/'
-            else
-              '${JAVA_HOME}/jre/lib/security/'
-            end}
-
-    For more, see: #{prefix + 'jre/lib/security'}/README.txt
     EOS
   end
 
