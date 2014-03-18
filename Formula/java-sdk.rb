@@ -2,41 +2,30 @@ require 'formula'
 
 class JavaDownloadStrategy < CurlDownloadStrategy
   def _fetch
-    cookie = "gpw_e24=http://www.oracle.com/technetwork/java"
+    cookie = "oraclelicense=accept-securebackup-cookie"
     curl @url, '-b', cookie, '-C', downloaded_size, '-o', @temporary_path
   end
 end
 
 class JavaDocs < Formula
-  url 'http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-apidocs.zip', :using => JavaDownloadStrategy
-  sha1 '11bbdfad5e11c3c4a187c8c8fd16a8746afe23d0'
-
-  devel do
-    url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-docs-b96-all-27_jun_2013.zip'
-    sha1 'fe94b95088061848ed2627485e9680a255068b65'
-  end
+  url 'http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-apidocs.zip', :using => JavaDownloadStrategy
+  sha1 '81e496940727f0be09f76f1205ead5862f4cc955'
 end
 
 class UnlimitedJcePolicy < Formula
-  url 'http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip', :using => JavaDownloadStrategy
-  sha1 '7d3c9ee89536b82cd21c680088b1bced16017253'
+  url 'http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip', :using => JavaDownloadStrategy
+  sha1 '7d25dcee3e6ef2c984d748a14614b37c18ce3507'
 end
 
 class JavaSdk < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
-  url 'http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-macosx-x64.dmg', :using => JavaDownloadStrategy
-  sha1 'd53f71dfb7f24b6c0fc470a17fa0cac3ee304194'
-  version '1.7.0_51'
-
-  devel do
-    url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-bin-b96-macosx-x86_64-27_jun_2013.dmg'
-    sha1 'fafa2247edfc39db2a4b9d776b5c49ff84a606d7'
-    version '1.8.0-ea'
-  end
+  url 'http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-macosx-x64.dmg', :using => JavaDownloadStrategy
+  sha1 'f4fe5a5f3e48cdeecd1d1ec9d380cf0c95ee3979'
+  version '1.8.0'
 
   keg_only 'Java SDK is installed via system package installer.'
 
-  depends_on :macos => :lion
+  depends_on :macos => :mountain_lion
 
   option 'with-docs', 'Also install SDK documentation'
   option 'with-unlimited-jce', 'Also install JCE Unlimited Strength Jurisdiction Policy Files'
@@ -54,16 +43,17 @@ class JavaSdk < Formula
   end
 
   # java is installed under multiple bundle ids for example,
-  # - "/Library/Java/JavaVirtualMachines/jdk1.7.0_51/Contents/Home" go under "com.oracle.jdk7u51"
+  # - "/Library/Java/JavaVirtualMachines/jdk1.8.0.jdk/Contents/Home" go under "com.oracle.jdk8"
   # - "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin" go under "com.oracle.jre"
   # - "/Library/PreferencePanes/JavaControlPanel.prefPane" go under "com.oracle.jre"
   def bundle_id_pattern(suffixes = [], prefix = 'com.oracle')
-    # Pattern would be like: "com.oracle.(jdk7u51|jre)"
+    # Pattern would be like: "com.oracle.(jdk8|jre)"
     return "#{prefix}.(#{suffixes.join('|')})"
   end
 
   def jdk_home_suffix
-    build.devel? ? 'jdk8' : 'jdk7u51'
+    # build.devel? ? 'jdk8' : 'jdk7u51'
+    'jdk8'
   end
 
   # mount dmg, do everything in the block and ensure dmg is unmounted
