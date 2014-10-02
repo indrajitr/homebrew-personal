@@ -24,7 +24,9 @@ class GrowlHelperAppRequirement < Requirement
         # Try detecting version directly if it is installed in usual place
         info = "#{GROWL_HELPER_BUNDLE_PATH}/Contents/Info.plist"
         if File.exist? "#{info}"
-          Version.new(`/usr/bin/defaults read "#{info}" 'CFBundleVersion' 2>/dev/null`.strip)
+          Version.new(Utils.popen_read(
+            "/usr/bin/defaults", "read", info.to_s, "CFBundleVersion", &:read
+          ).strip)
         end
       else
         # Ask Spotlight where Growl is. If the user didn't installed Growl
@@ -32,7 +34,9 @@ class GrowlHelperAppRequirement < Requirement
         # See: http://superuser.com/questions/390757
         path = MacOS.app_with_bundle_id(GROWL_HELPER_BUNDLE_ID)
         if not path.nil? and path.exist?
-          Version.new(`/usr/bin/mdls -raw -name kMDItemVersion "#{path}" 2>/dev/null`.strip)
+          Version.new(Utils.popen_read(
+            "/usr/bin/mdls", "-raw", "-nullMarker", "", "-name", "kMDItemVersion", path.to_s, &:read
+          ).strip)
         end
       end
     end
