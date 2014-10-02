@@ -122,8 +122,8 @@ class JavaSdk < Formula
       safe_system 'sudo', 'installer', '-pkg', pkg_file, '-target', target_device
     end
 
-    resource('docs').stage { doc.install Dir['*'] } if build.with? 'docs'
-    resource('unlimited-jce').stage { (prefix + 'jre/lib/security').install Dir['*'] } if build.with? 'unlimited-jce'
+    doc.install resource('docs') if build.with? 'docs'
+    (prefix + 'jce-policy').install resource('unlimited-jce') if build.with? 'unlimited-jce'
   end
 
   def post_install
@@ -141,10 +141,10 @@ class JavaSdk < Formula
     if build.with? 'unlimited-jce'
       # JCE Unlimited Strength Jurisdiction Policy files replace the strong
       # policy files inside SDK's JRE home
-      # See: #{prefix + 'jre/lib/security'}/README.txt
+      # See: #{prefix + 'jce-policy'}/README.txt
       dest = Pathname.new("#{jdk_installed_base}/Contents/Home/jre/lib/security/")
       ['US_export_policy.jar', 'local_policy.jar'].each do |jar|
-        safe_system 'sudo', 'ln', '-sf', prefix + 'jre/lib/security/' + jar, dest
+        safe_system 'sudo', 'cp', prefix + 'jce-policy/' + jar, dest
       end
     end
   end
