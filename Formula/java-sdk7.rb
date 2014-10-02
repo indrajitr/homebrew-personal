@@ -7,31 +7,20 @@ class JavaDownloadStrategy < CurlDownloadStrategy
   end
 end
 
-class JavaDocs < Formula
-  url 'http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-apidocs.zip', :using => JavaDownloadStrategy
-  sha1 '11bbdfad5e11c3c4a187c8c8fd16a8746afe23d0'
-
-  devel do
-    url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-docs-b96-all-27_jun_2013.zip'
-    sha1 'fe94b95088061848ed2627485e9680a255068b65'
-  end
-end
-
-class UnlimitedJcePolicy < Formula
-  url 'http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip', :using => JavaDownloadStrategy
-  sha1 '7d3c9ee89536b82cd21c680088b1bced16017253'
-end
-
 class JavaSdk7 < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
   url 'http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-macosx-x64.dmg', :using => JavaDownloadStrategy
   sha1 'd53f71dfb7f24b6c0fc470a17fa0cac3ee304194'
   version '1.7.0_51'
 
-  devel do
-    url 'http://www.java.net/download/jdk8/archive/b96/binaries/jdk-8-ea-bin-b96-macosx-x86_64-27_jun_2013.dmg'
-    sha1 'fafa2247edfc39db2a4b9d776b5c49ff84a606d7'
-    version '1.8.0-ea'
+  resource 'docs' do
+    url 'http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-apidocs.zip', :using => JavaDownloadStrategy
+    sha1 '11bbdfad5e11c3c4a187c8c8fd16a8746afe23d0'
+  end
+
+  resource 'unlimited-jce' do
+    url 'http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip', :using => JavaDownloadStrategy
+    sha1 '7d3c9ee89536b82cd21c680088b1bced16017253'
   end
 
   keg_only 'Java SDK is installed via system package installer.'
@@ -62,9 +51,7 @@ class JavaSdk7 < Formula
     return "#{prefix}.(#{suffixes.join('|')})"
   end
 
-  def jdk_home_suffix
-    build.devel? ? 'jdk8' : 'jdk7u51'
-  end
+  def jdk_home_suffix; 'jdk7u51' end
 
   # mount dmg, do everything in the block and ensure dmg is unmounted
   def mount_dmg(mountpoint, &block)
@@ -104,14 +91,14 @@ class JavaSdk7 < Formula
     Pathname.new("#{target_device}/#{prefix}").cleanpath
   end
 
-  def packages_with_bundle_id id_prefix
+  def packages_with_bundle_id(id_prefix)
     (@packages ||= {}).fetch(id_prefix.to_s) do
       @packages[id_prefix.to_s] =
         `/usr/sbin/pkgutil --packages --volume #{target_device}`.split("\n").select { |p| p =~ %r{#{id_prefix}} }
     end
   end
 
-  def files_with_bundle_id id
+  def files_with_bundle_id(id)
     (@files ||= {}).fetch(id.to_s) do
       @files[id.to_s] = `/usr/sbin/pkgutil --files #{id}`.split("\n")
     end
@@ -135,8 +122,8 @@ class JavaSdk7 < Formula
       safe_system 'sudo', 'installer', '-pkg', pkg_file, '-target', target_device
     end
 
-    JavaDocs.new.brew { doc.install Dir['*'] } if build.with? 'docs'
-    UnlimitedJcePolicy.new.brew { (prefix + 'jre/lib/security').install Dir['*'] } if build.with? 'unlimited-jce'
+    resource('docs').stage { doc.install Dir['*'] } if build.with? 'docs'
+    resource('unlimited-jce').stage { (prefix + 'jre/lib/security').install Dir['*'] } if build.with? 'unlimited-jce'
   end
 
   def post_install

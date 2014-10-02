@@ -7,21 +7,21 @@ class JavaDownloadStrategy < CurlDownloadStrategy
   end
 end
 
-class JavaDocs < Formula
-  url 'http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-apidocs.zip', :using => JavaDownloadStrategy
-  sha1 '81e496940727f0be09f76f1205ead5862f4cc955'
-end
-
-class UnlimitedJcePolicy < Formula
-  url 'http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip', :using => JavaDownloadStrategy
-  sha1 '7d25dcee3e6ef2c984d748a14614b37c18ce3507'
-end
-
 class JavaSdk < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
   url 'http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-macosx-x64.dmg', :using => JavaDownloadStrategy
   sha1 'f4fe5a5f3e48cdeecd1d1ec9d380cf0c95ee3979'
   version '1.8.0'
+
+  resource 'docs' do
+    url 'http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-apidocs.zip', :using => JavaDownloadStrategy
+    sha1 '81e496940727f0be09f76f1205ead5862f4cc955'
+  end
+
+  resource 'unlimited-jce' do
+    url 'http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip', :using => JavaDownloadStrategy
+    sha1 '7d25dcee3e6ef2c984d748a14614b37c18ce3507'
+  end
 
   keg_only 'Java SDK is installed via system package installer.'
 
@@ -94,14 +94,14 @@ class JavaSdk < Formula
     Pathname.new("#{target_device}/#{prefix}").cleanpath
   end
 
-  def packages_with_bundle_id id_prefix
+  def packages_with_bundle_id(id_prefix)
     (@packages ||= {}).fetch(id_prefix.to_s) do
       @packages[id_prefix.to_s] =
         `/usr/sbin/pkgutil --packages --volume #{target_device}`.split("\n").select { |p| p =~ %r{#{id_prefix}} }
     end
   end
 
-  def files_with_bundle_id id
+  def files_with_bundle_id(id)
     (@files ||= {}).fetch(id.to_s) do
       @files[id.to_s] = `/usr/sbin/pkgutil --files #{id}`.split("\n")
     end
@@ -125,8 +125,8 @@ class JavaSdk < Formula
       safe_system 'sudo', 'installer', '-pkg', pkg_file, '-target', target_device
     end
 
-    JavaDocs.new.brew { doc.install Dir['*'] } if build.with? 'docs'
-    UnlimitedJcePolicy.new.brew { (prefix + 'jre/lib/security').install Dir['*'] } if build.with? 'unlimited-jce'
+    resource('docs').stage { doc.install Dir['*'] } if build.with? 'docs'
+    resource('unlimited-jce').stage { (prefix + 'jre/lib/security').install Dir['*'] } if build.with? 'unlimited-jce'
   end
 
   def post_install
