@@ -11,7 +11,7 @@ class JavaSdk7 < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
   url 'http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-macosx-x64.dmg', :using => JavaDownloadStrategy
   sha1 'f8b28b8b0703a99bc12af2424d261c81d16de88f'
-  version '1.7.0_67'
+  version '1.7.0_u67'
 
   resource 'docs' do
     url 'http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-apidocs.zip', :using => JavaDownloadStrategy

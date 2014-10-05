@@ -11,7 +11,7 @@ class JavaSdk < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
   url 'http://download.oracle.com/otn-pub/java/jdk/8u20-b26/jdk-8u20-macosx-x64.dmg', :using => JavaDownloadStrategy
   sha1 'cba89ee3ab45afb7721e8e2f45f7d06403d43ee0'
-  version '1.8.0_20'
+  version '1.8.0_u20'
 
   resource 'docs' do
     url 'http://download.oracle.com/otn-pub/java/jdk/8u20-b26/jdk-8u20-docs-all.zip', :using => JavaDownloadStrategy
