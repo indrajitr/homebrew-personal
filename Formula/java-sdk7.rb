@@ -9,13 +9,13 @@ end
 
 class JavaSdk7 < Formula
   homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
-  url 'http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-macosx-x64.dmg', :using => JavaDownloadStrategy
-  sha1 'f8b28b8b0703a99bc12af2424d261c81d16de88f'
-  version '1.7.0_u67'
+  url 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-macosx-x64.dmg', :using => JavaDownloadStrategy
+  sha1 'd7fe027f94d23c2e986507fe89a3ceaacd93fbf2'
+  version '1.7.0_u71'
 
   resource 'docs' do
-    url 'http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-apidocs.zip', :using => JavaDownloadStrategy
-    sha1 'c498674d2896e0da748081d004e7dfa9dfb5ad6b'
+    url 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-docs-all.zip', :using => JavaDownloadStrategy
+    sha1 'fc070b4075ce45e0352005e9dbd96a63e2ac5fae'
   end
 
   resource 'unlimited-jce' do
@@ -43,15 +43,15 @@ class JavaSdk7 < Formula
   end
 
   # java is installed under multiple bundle ids for example,
-  # - "/Library/Java/JavaVirtualMachines/jdk1.7.0_67/Contents/Home" go under "com.oracle.jdk7u67"
+  # - "/Library/Java/JavaVirtualMachines/jdk1.7.0_71/Contents/Home" go under "com.oracle.jdk7u71"
   # - "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin" go under "com.oracle.jre"
   # - "/Library/PreferencePanes/JavaControlPanel.prefPane" go under "com.oracle.jre"
   def bundle_id_pattern(suffixes = [], prefix = 'com.oracle')
-    # Pattern would be like: "com.oracle.(jdk7u67|jre)"
+    # Pattern would be like: "com.oracle.(jdk7u71|jre)"
     return "#{prefix}.(#{suffixes.join('|')})"
   end
 
-  def jdk_home_suffix; 'jdk7u67' end
+  def jdk_home_suffix; 'jdk7u71' end
 
   # mount dmg, do everything in the block and ensure dmg is unmounted
   def mount_dmg(mountpoint, &block)
