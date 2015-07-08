@@ -5,6 +5,16 @@ class JavaDownloadStrategy < CurlDownloadStrategy
     cookie = "oraclelicense=accept-securebackup-cookie"
     curl @url, '-b', cookie, '-C', downloaded_size, '-o', @temporary_path
   end
+
+  # Workaround for https://github.com/Homebrew/homebrew/commit/7822f70c06ead5189dd0d308f3550f9924656537#commitcomment-12052731
+  def actual_urls
+    urls = []
+    cookie = "oraclelicense=accept-securebackup-cookie"
+    Utils.popen_read("curl", "-b", cookie, "-I", "-L", @url).scan(/^Location: (.+)$/).map do |m|
+      urls << URI.join(urls.last || @url, m.first.chomp).to_s
+    end
+    urls
+  end
 end
 
 class JavaSdk7 < Formula
