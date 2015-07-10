@@ -7,30 +7,32 @@ class JavaDownloadStrategy < CurlDownloadStrategy
 end
 
 class JavaSdk < Formula
-  homepage 'http://www.oracle.com/technetwork/java/javase/index.html'
-  url 'http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-macosx-x64.dmg', :using => JavaDownloadStrategy
-  sha1 '586012489bd31e56c4571a585b5ee66f4be4d17d'
-  version '1.8.0_u45'
+  desc "Java SE 8 Development Kit"
+  homepage "http://www.oracle.com/technetwork/java/javase/index.html"
+  url "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-macosx-x64.dmg", :using => JavaDownloadStrategy
+  sha256 "1a87665a5d1055ad2d804615446ab4877a4eb2c993b1acddd6c80d0d7028a5b2"
+  version "1.8.0_45-b14"
 
   resource 'docs' do
-    url 'http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-docs-all.zip', :using => JavaDownloadStrategy
-    sha1 '39d6a679cda317717ab85f28220a893a78b8c70d'
+    url "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-docs-all.zip", :using => JavaDownloadStrategy
+    sha256 "bc83053e6730779a97077cf1246e7c57e46600294357ab37675555c1c6a11cbc"
   end
 
   resource 'unlimited-jce' do
-    url 'http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip', :using => JavaDownloadStrategy
-    sha1 '7d25dcee3e6ef2c984d748a14614b37c18ce3507'
+    url "http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip", :using => JavaDownloadStrategy
+    sha256 "f3020a3922efd6626c2fff45695d527f34a8020e938a49292561f18ad1320b59"
   end
 
-  keg_only 'Java SDK is installed via system package installer.'
+  keg_only "Java SDK is installed via system package installer."
 
+  depends_on :arch => :x86_64
   depends_on :macos => :mountain_lion
 
-  option 'with-docs', 'Also install SDK documentation'
-  option 'with-unlimited-jce', 'Also install JCE Unlimited Strength Jurisdiction Policy Files'
+  option "with-docs", "Also install SDK documentation"
+  option "with-unlimited-jce", "Also install JCE Unlimited Strength Jurisdiction Policy Files"
 
   def options
-    [['--target=<target_device>', "Install on a different volume, defaults to '/'"]]
+    [["--target=<target_device>", "Install on a different volume, defaults to '/'"]]
   end
 
   def target_device
@@ -47,10 +49,10 @@ class JavaSdk < Formula
   # - "/Library/PreferencePanes/JavaControlPanel.prefPane" go under "com.oracle.jre"
   def bundle_id_pattern(suffixes = [], prefix = 'com.oracle')
     # Pattern would be like: "com.oracle.(jdk8u45|jre)"
-    return "#{prefix}.(#{suffixes.join('|')})"
+    "#{prefix}.(#{suffixes.join('|')})"
   end
 
-  def jdk_home_suffix; 'jdk8u45' end
+  def jdk_home_suffix; "jdk8u45" end
 
   # mount dmg, do everything in the block and ensure dmg is unmounted
   def mount_dmg(mountpoint, &block)
