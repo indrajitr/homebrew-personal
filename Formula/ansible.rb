@@ -293,12 +293,6 @@ class Ansible < Formula
       sha256 "da5ea2e0f00ea4802b5a8a2d66f92be1f4153b18ac4d047f0a8116671ec614b9"
     end
 
-    # https://github.com/ansible/ansible-modules-extras/issues/338
-    patch do
-      url "https://patch-diff.githubusercontent.com/raw/ansible/ansible/pull/10507.diff"
-      sha256 "f2889197a470228126450eeb174cdc75dc124672641f8af2a9efd9cc5741533e"
-    end
-
     # https://github.com/ansible/ansible/pull/11644
     patch do
       url "https://patch-diff.githubusercontent.com/raw/ansible/ansible/pull/11644.diff"
