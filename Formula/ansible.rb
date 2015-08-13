@@ -299,6 +299,24 @@ class Ansible < Formula
       # url "https://github.com/indrajitr/ansible/commit/4553a41ab5fd56ad06fe8a290c392f793048f0a5.diff"
       sha256 "fac85f29cd9c250f5b8e385832f003c2abed7d01892e21b5922c3abf0ba3854e"
     end
+
+    # https://github.com/ansible/ansible-modules-extras/pull/480
+    patch do
+      url "https://gist.githubusercontent.com/indrajitr/b488a78010ef1e8334e5/raw/040497a91e7ba13904d10636ad252d5971d4f3a8/480.diff"
+      sha256 "8a55197a4c54b23b77a4ec374d1d5f2594bb3379024dec44119bc77979fd96ad"
+    end
+
+    # https://github.com/ansible/ansible-modules-extras/pull/762
+    patch do
+      url "https://gist.githubusercontent.com/indrajitr/0a095b0ac13503398a2f/raw/1dd3b9c410b2b15486b23640e918e128d3dff99b/762.diff"
+      sha256 "37a1b1058029bb3f07bea7894effb6615b1537a3dca37922cd2963f9a8403232"
+    end
+
+    # https://github.com/ansible/ansible-modules-extras/pull/767
+    patch do
+      url "https://gist.githubusercontent.com/indrajitr/c71f712bd1d235716091/raw/edfde7b4a8fc2202fecdeaa02f0612e7ea865835/767.diff"
+      sha256 "e7f9c54055e78c9889f7321aef9848a164e7a7ea5b5b2ff35424bbe2c6bf0d2a"
+    end
   end
 
   def install
