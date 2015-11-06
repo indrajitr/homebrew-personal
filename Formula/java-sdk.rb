@@ -9,13 +9,13 @@ end
 class JavaSdk < Formula
   desc "Java SE 8 Development Kit"
   homepage "http://www.oracle.com/technetwork/java/javase/index.html"
-  url "http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-macosx-x64.dmg", :using => JavaDownloadStrategy
-  sha256 "554f4fef08a5ea5b5b6e90cacb62a7a390d94d96c27fa2a5d6b44fc73e45465e"
-  version "1.8.0_60-b27"
+  url "http://download.oracle.com/otn-pub/java/jdk/8u65-b17/jdk-8u65-macosx-x64.dmg", :using => JavaDownloadStrategy
+  sha256 "b19704809009045bbb27412aff6a853cb223499e7e7528ba5191291843aa3017"
+  version "1.8.0_65-b17"
 
   resource 'docs' do
-    url "http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-docs-all.zip", :using => JavaDownloadStrategy
-    sha256 "cbeffb41253da58f8924423f22a9bd53802633925664d68c46e6bfffd506a33d"
+    url "http://download.oracle.com/otn-pub/java/jdk/8u65-b17/jdk-8u65-docs-all.zip", :using => JavaDownloadStrategy
+    sha256 "3752b76dd069351687f39435385b29ab9563e55fd9b53540af3bce50e85886a2"
   end
 
   resource 'unlimited-jce' do
@@ -44,15 +44,15 @@ class JavaSdk < Formula
   end
 
   # java is installed under multiple bundle ids for example,
-  # - "/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home" go under "com.oracle.jdk8u60"
+  # - "/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home" go under "com.oracle.jdk8u65"
   # - "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin" go under "com.oracle.jre"
   # - "/Library/PreferencePanes/JavaControlPanel.prefPane" go under "com.oracle.jre"
   def bundle_id_pattern(suffixes = [], prefix = 'com.oracle')
-    # Pattern would be like: "com.oracle.(jdk8u60|jre)"
+    # Pattern would be like: "com.oracle.(jdk8u65|jre)"
     "#{prefix}.(#{suffixes.join('|')})"
   end
 
-  def jdk_home_suffix; "jdk8u60" end
+  def jdk_home_suffix; "jdk8u65" end
 
   # mount dmg, do everything in the block and ensure dmg is unmounted
   def mount_dmg(mountpoint, &block)
